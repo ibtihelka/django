@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Language Learning Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Vérifiez si ce cookie commence par le nom recherché
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function sendMessage() {
+    const message = document.getElementById("message").value;
+    const csrftoken = getCookie('csrftoken');  // Récupérer le jeton CSRF
+
+    const response = await fetch("/chatbot/api/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": csrftoken,  // Inclure le jeton CSRF
+        },
+        body: new URLSearchParams({ message: message }),
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+        document.getElementById("response").textContent = data.response;
+    } else {
+        document.getElementById("response").textContent = "Error: " + data.error;
+    }
+}
+
+    </script>
+</head>
+<body>
+    <h1>Chat with the Language Learning AI</h1>
+    <input type="text" id="message" placeholder="Type your message here">
+    <button onclick="sendMessage()">Send</button>
+    <p><strong>Response:</strong> <span id="response"></span></p>
+</body>
+</html>

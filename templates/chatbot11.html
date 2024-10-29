@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <script>
+        async function sendMessage(event) {
+            event.preventDefault();
+            const userMessage = document.getElementById('user_message').value;
+
+            const response = await fetch('/chatbot/chatbot_response/', { // Changez ceci
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: new URLSearchParams({'message': userMessage})
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('chat_output').textContent += `Vous: ${userMessage}\nChatbot: ${data.reply}\n`;
+            } else {
+                document.getElementById('chat_output').textContent += `Erreur: ${data.error}\n`;
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <form onsubmit="sendMessage(event)">
+        <textarea id="user_message" rows="4" cols="50" placeholder="Posez votre question..."></textarea><br>
+        <button type="submit">Envoyer</button>
+    </form>
+    <h2>Conversation:</h2>
+    <pre id="chat_output"></pre>
+</body>
+</html>
