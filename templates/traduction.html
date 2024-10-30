@@ -43,47 +43,127 @@
             if (response.ok) {
                 document.getElementById('output').textContent = data.generated_text;
             } else {
-                document.getElementById('output').textContent = `Error: ${JSON.stringify(data.error)}`;
+                document.getElementById('output').textContent = "Loading...";
             }
         }
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            width: 48%;
+        }
+
+        button {
+            background-color: #4285f4;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #357ae8;
+        }
+
+        h2 {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        #output {
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <h1>Text Translator</h1>
     <form onsubmit="translateText(event)">
-        <textarea id="input_text" rows="4" cols="50" placeholder="Enter text to translate..."></textarea><br>
+        <textarea id="input_text" rows="4" placeholder="Enter text to translate..."></textarea>
         
-        <label for="source_lang">From:</label>
-        <select id="source_lang">
-            <option value="en">English</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="es">Spanish</option>
-            <option value="it">Italian</option>
-            <option value="nl">Dutch</option>
-            <option value="ru">Russian</option>
-            <option value="zh">Chinese</option>
-            <option value="ja">Japanese</option>
-            <option value="ar">Arabic</option>
-            <option value="ko">Korean</option>
-            <!-- Add more languages as needed -->
-        </select>
-        
-        <label for="target_lang">To:</label>
-        <select id="target_lang">
-            <option value="fr">French</option>
-            <option value="en">English</option>
-            <option value="de">German</option>
-            <option value="es">Spanish</option>
-            <option value="it">Italian</option>
-            <option value="nl">Dutch</option>
-            <option value="ru">Russian</option>
-            <option value="zh">Chinese</option>
-            <option value="ja">Japanese</option>
-            <option value="ar">Arabic</option>
-            <option value="ko">Korean</option>
-            <!-- Add more languages as needed -->
-        </select>
+        <div>
+            <label for="source_lang">From:</label>
+            <select id="source_lang">
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="es">Spanish</option>
+                <option value="it">Italian</option>
+                <option value="nl">Dutch</option>
+                <option value="ru">Russian</option>
+                <option value="zh">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ar">Arabic</option>
+                <option value="ko">Korean</option>
+            </select>
+            
+            <label for="target_lang">To:</label>
+            <select id="target_lang">
+                <option value="fr">French</option>
+                <option value="en">English</option>
+                <option value="de">German</option>
+                <option value="es">Spanish</option>
+                <option value="it">Italian</option>
+                <option value="nl">Dutch</option>
+                <option value="ru">Russian</option>
+                <option value="zh">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ar">Arabic</option>
+                <option value="ko">Korean</option>
+            </select>
+        </div>
         
         <button type="submit">Translate</button>
     </form>

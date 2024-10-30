@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from chat.models import Room, Message
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
-# Create your views here.
 def home(request):
-    return render(request, 'home.html')
+    # Récupérer tous les salons existants
+    rooms = Room.objects.all()
+    return render(request, 'home.html', {'rooms': rooms})
 
 def room(request, room):
     username = request.GET.get('username')
@@ -20,11 +22,11 @@ def checkview(request):
     username = request.POST['username']
 
     if Room.objects.filter(name=room).exists():
-        return redirect('/'+room+'/?username='+username)
+        return redirect(''+room+'/?username='+username)
     else:
         new_room = Room.objects.create(name=room)
         new_room.save()
-        return redirect('/'+room+'/?username='+username)
+        return redirect(''+room+'/?username='+username)
 
 def send(request):
     message = request.POST['message']
@@ -41,21 +43,25 @@ def getMessages(request, room):
     messages = Message.objects.filter(room=room_details.id)
     return JsonResponse({"messages":list(messages.values())})
 
+@csrf_exempt
 def delete_message(request, message_id):
+    username = request.POST.get('username')
     try:
-        message = Message.objects.get(id=message_id)
+        message = Message.objects.get(id=message_id, user=username)
         message.delete()
         return JsonResponse({'status': 'success'})
     except Message.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Message not found'})
+        return JsonResponse({'status': 'error', 'message': 'Message not found or you do not have permission to delete this message'})
 
+@csrf_exempt
 def update_message(request, message_id):
     if request.method == 'POST':
         new_value = request.POST.get('new_value')
+        username = request.POST.get('username')
         try:
-            message = Message.objects.get(id=message_id)
+            message = Message.objects.get(id=message_id, user=username)
             message.value = new_value
             message.save()
             return JsonResponse({'status': 'success'})
         except Message.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Message not found'})
+            return JsonResponse({'status': 'error', 'message': 'Message not found or you do not have permission to edit this message'})

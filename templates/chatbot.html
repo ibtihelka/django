@@ -4,6 +4,74 @@
     <meta charset="UTF-8">
     <title>Language Learning Chatbot</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Centrer le conteneur principal */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        /* Conteneur principal pour le chatbot */
+        #chatbot-container {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Style pour la zone de conversation */
+        #chat-container {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid hsl(0, 0%, 80%);
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        /* Style des messages utilisateur et bot */
+        .message-container {
+            margin-bottom: 10px;
+        }
+        .user-message {
+            color: blue;
+            text-align: right;
+        }
+        .bot-response {
+            color: green;
+            text-align: left;
+        }
+
+        /* Style pour l'input et le bouton */
+        #message {
+            width: 70%;
+            padding: 10px;
+            margin-right: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
     <script>
         function getCookie(name) {
             let cookieValue = null;
@@ -11,7 +79,6 @@
                 const cookies = document.cookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
                     const cookie = cookies[i].trim();
-                    // Vérifiez si ce cookie commence par le nom recherché
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
@@ -22,33 +89,55 @@
         }
 
         async function sendMessage() {
-    const message = document.getElementById("message").value;
-    const csrftoken = getCookie('csrftoken');  // Récupérer le jeton CSRF
+            const message = document.getElementById("message").value;
+            const csrftoken = getCookie('csrftoken');
 
-    const response = await fetch("/chatbot/api/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": csrftoken,  // Inclure le jeton CSRF
-        },
-        body: new URLSearchParams({ message: message }),
-    });
-    
-    const data = await response.json();
-    
-    if (response.ok) {
-        document.getElementById("response").textContent = data.response;
-    } else {
-        document.getElementById("response").textContent = "Error: " + data.error;
-    }
-}
+            if (!message.trim()) {
+                alert("Veuillez entrer un message.");
+                return;
+            }
 
+            const response = await fetch("/chatbot/api/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrftoken,
+                },
+                body: new URLSearchParams({ message: message }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Ajouter le message de l'utilisateur et la réponse du bot à la conversation
+                addMessageToChat("user", message);
+                addMessageToChat("bot", data.response);
+            } else {
+                addMessageToChat("bot", "Erreur : " + data.error);
+            }
+
+            // Réinitialiser le champ de saisie
+            document.getElementById("message").value = '';
+        }
+
+        function addMessageToChat(sender, message) {
+            const messageContainer = document.createElement("div");
+            messageContainer.className = "message-container " + (sender === "user" ? "user-message" : "bot-response");
+            messageContainer.textContent = message;
+
+            document.getElementById("chat-container").appendChild(messageContainer);
+            document.getElementById("chat-container").scrollTop = document.getElementById("chat-container").scrollHeight;
+        }
     </script>
 </head>
 <body>
-    <h1>Chat with the Language Learning AI</h1>
-    <input type="text" id="message" placeholder="Type your message here">
-    <button onclick="sendMessage()">Send</button>
-    <p><strong>Response:</strong> <span id="response"></span></p>
+    <div id="chatbot-container">
+        <h1>Chat with the Language Learning AI</h1>
+        <div id="chat-container">
+            <!-- Messages seront ajoutés ici -->
+        </div>
+        <input type="text" id="message" placeholder="Type your message here">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 </body>
 </html>

@@ -124,6 +124,7 @@
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 </head>
 <body>
 
@@ -141,15 +142,24 @@ $(document).ready(function() {
                 $("#display").empty();
                 for (var key in response.messages) {
                     var message = response.messages[key];
+                    
+                    // Format the date using Moment.js
+                    var formattedDate = moment(message.date).format('DD MMM YYYY, HH:mm:ss');
+                    
                     var temp = `
                         <div class='container darker'>
                             <b>${message.user}</b>
                             <p>${message.value}</p>
-                            <span class='time-left'>${message.date}</span>
+                            <span class='time-left'>${formattedDate}</span>`;
+                    
+                    if (message.user === "{{ username }}") {
+                        temp += `
                             <br>
                             <button class="edit" onclick="editMessage(${message.id}, '${message.value}')">Modifier</button>
-                            <button class="delete" onclick="deleteMessage(${message.id})">Supprimer</button>
-                        </div>`;
+                            <button class="delete" onclick="deleteMessage(${message.id})">Supprimer</button>`;
+                    }
+                    temp += `</div>`;
+                    
                     $("#display").append(temp);
                 }
             },
@@ -166,12 +176,13 @@ function deleteMessage(messageId) {
             type: 'POST',
             url: `/deleteMessage/${messageId}/`,
             data: {
+                username: $('#username').val(), // Include the username
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
             success: function(response) {
                 if (response.status === 'success') {
                     alert('Message supprimé avec succès');
-                    location.reload(); // Recharge la page pour mettre à jour la liste des messages
+                    location.reload();
                 } else {
                     alert(response.message);
                 }
@@ -188,12 +199,13 @@ function editMessage(messageId, currentValue) {
             url: `/updateMessage/${messageId}/`,
             data: {
                 new_value: newValue,
+                username: $('#username').val(), // Include the username
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
             },
             success: function(response) {
                 if (response.status === 'success') {
                     alert('Message mis à jour avec succès');
-                    location.reload(); // Recharge la page pour mettre à jour la liste des messages
+                    location.reload();
                 } else {
                     alert(response.message);
                 }
@@ -201,6 +213,7 @@ function editMessage(messageId, currentValue) {
         });
     }
 }
+
 </script>
 
 <div class="container">
